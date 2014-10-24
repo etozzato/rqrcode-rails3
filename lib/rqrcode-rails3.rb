@@ -23,6 +23,19 @@ module RQRCode
     else
       image = MiniMagick::Image.read(svg) { |i| i.format "svg" }
       image.format format
+
+      # for now(tm) we're just going to assume the perfect image
+      # is passed as overlay. overlay should be a relative path,
+      # an URL would deadlock the request ... ;)
+      if options[:overlay]
+        overlay = MiniMagick::Image.open(options[:overlay])
+
+        image = image.composite(overlay) do |c|
+          c.compose "Over"
+          c.geometry "+0+0"
+        end
+      end
+
       image.to_blob
     end
   end
